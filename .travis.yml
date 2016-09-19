@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: DKROLYEuhJbbLPor4i0wYROn0PM+d1OVrYF1uU/KdKYByP4LndVODuLsPJIZxX0zud1B08chQue5eS72ZUM6bi8e1jzjPUpCfDoSYAexSJEdAjIlWcXkY89dIxEhaCsD32zlYqkhKtTYklmHaon/LLBNSYwHH6+NahsuQxsjoThwcTMEUdG8mfAD+5/ZqI+wt02Q3V5fd6/jt2IT+L8OjnZHCCcExi1xaMslhuzZgFvHvrq7Ak409w/XpA9EmFJTZU8+zEMYtTvfYKeCQddvaVFvJnvHBLaNsz8UBdfpN0eGZgSzpzpwgXOPeD0aSbk7CtH+6CXM6zCZWz/vS45ej2XVoAi6Qfht/0Xof6DKCOevBSdB88qpU/V1955mYujARpCnIcFASnboY1+xQe1rfO6SOCreTWRL3yS6J/eS99MT+6tLlIyx0fIKLvjKLRXXsEBoajf26Vnj4FduoLCWCKJIiKHu+Kcg4zfHGPn7n5KOF8u7fRwMfdOR7yJ4AR8B4Aqk/xvws5gONnXNSdkNY88OcFJrv3gCxBa3DrxqbZvKiUGugiWViMutcHi7Dm15SMsQsoYEc8LwIJPJRLL538Fp+9MvIQvkml01pL188+k0ww92Tdz2G4vi7gE9u96svilU+k6iPsA45VYhdZe6a5414ZldNDslQqztrPtKnlg=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/The-Chinese-Classics---Volume-1--Confucian-Analects_4094
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
